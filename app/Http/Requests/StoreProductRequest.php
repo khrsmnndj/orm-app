@@ -25,8 +25,8 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'product_name' => 'required',
-            'license_name' => 'sometimes',
-            'tag_name' => 'sometimes'
+            'license_name' => 'required',
+            'tag_name' => 'required'
         ];
     }
 }

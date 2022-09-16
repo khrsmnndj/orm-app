@@ -80,6 +80,7 @@ class LicenseController extends Controller
         }
 
         $license->license_name = $request->has('license_name') ? $request->all() : $license->license_name;
+        $license->product_id = $request->has('product_id') ? $request->all() : $license->product_id;
         $license->save();
 
         return response()->json([

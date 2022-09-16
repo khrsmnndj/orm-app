@@ -25,7 +25,7 @@ class StoreLicenseRequest extends FormRequest
     {
         return [
             'license_name' => 'required',
-            'product_id' => 'required'
+            'product_id' => 'required|exists:products,id'
         ];
     }
 }

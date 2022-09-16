@@ -25,7 +25,7 @@ class UpdateLicenseRequest extends FormRequest
     {
         return [
             'license_name' => 'required',
-            'product_id' => 'required'
+            'product_id' => 'sometimes|exists:products,id'
         ];
     }
 }

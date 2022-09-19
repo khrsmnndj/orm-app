@@ -22,10 +22,34 @@ class ProductControllerTest extends TestCase
     public function test_get_all_products()
     {
         $products = Product::factory()->count(5)->create();
-        $response = $this->get('/api/v0/licenses');
+        $response = $this->get('/api/v0/products');
         $response->assertOk();
 
         $this->assertEquals(5, $products->count());
+    }
+
+    public function test_get_product_and_tags()
+    {
+
+        $tags = Tag::factory()->create([
+            'tag_name' => 'iBM',
+        ]);
+
+        $response = $this->get("/api/v0/product-tags?tag={$tags->tag_name}");
+        $response->assertOk();
+
+    }
+
+    public function test_get_product_and_licenses()
+    {
+
+        $licenses = License::factory()->create([
+            'license_name' => 'Sony',
+        ]);
+
+        $response = $this->get("/api/v0/product-licenses?license={$licenses->license_name}");
+        $response->assertOk();
+
     }
 
     public function test_create_a_products()
@@ -45,6 +69,7 @@ class ProductControllerTest extends TestCase
         $response = $this->postJson('/api/v0/products', $data);
         $response->assertCreated();
     }
+
 
     public function test_failed_create_a_products()
     {

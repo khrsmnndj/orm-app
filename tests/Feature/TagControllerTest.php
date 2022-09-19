@@ -32,6 +32,15 @@ class TagControllerTest extends TestCase
         $this->assertEquals(5, $tags->count());
     }
 
+    public function test_get_tag_products()
+    {
+        $products = Product::factory()->create([
+            'product_name' => 'samsung',
+        ]);
+        $response = $this->get("/api/v0/tag-products?product={$products->product_name}");
+        $response->assertOk();
+    }
+
     public function test_create_a_tag()
     {
         $tags = Tag::factory()->create();

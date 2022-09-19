@@ -6,13 +6,60 @@ use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 use Illuminate\Http\Request;
 use App\Models\Tag;
+use OpenApi\Annotations as OA;
 
 class TagController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v0/tags",
+     *     tags={"Tags Data"},
+     *     summary="Get Tags",
+     *     operationId="getTags",
+     *     
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="per_page",
+     *          example="10"
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="current_page",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/Tags")
+     *              ),
+     *              @OA\Property(
+     *                  property="first_page_url",
+     *                  type="string",
+     *                  example="/api/v0/tags?page=1"
+     *              ),
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="last_page",
+     *                  type="integer",
+     *                  example="10"
+     *              ),
+     *          ),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -29,6 +76,64 @@ class TagController extends Controller
             "data" => $tags
         ], 200);    
     }
+
+        /**
+     * @OA\Get(
+     *     path="/api/v0/tag-products",
+     *     tags={"Tag's Products Data"},
+     *     summary="Get Tags and Products",
+     *     operationId="getTagProducts",
+     *     
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="per_page",
+     *          example="10"
+     *     ),
+     * 
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="product",
+     *          example="window"
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="current_page",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/Tags")
+     *              ),
+     *              @OA\Property(
+     *                  property="first_page_url",
+     *                  type="string",
+     *                  example="/api/v0/tag-products?page=1"
+     *              ),
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="last_page",
+     *                  type="integer",
+     *                  example="10"
+     *              ),
+     *          ),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     )
+     * )
+     */
 
     public function filterByProduct(Request $request){
         $product = $request->query('product');
@@ -48,11 +153,36 @@ class TagController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v0/tags",
+     *     tags={"Post Tags Data"},
+     *     summary="Post Tags",
+     *     operationId="postTags",
+     *     @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="tag_name", type="string", example="Pilsner"),
+     *              @OA\Property(property="product_name", type="string", example="Jack Daniel"),
+     *          ),
+     *      ),
      *
-     * @param  \App\Http\Requests\StoreTagRequest  $request
-     * @return \Illuminate\Http\Response
+     *     @OA\Response(
+     *         response=201,
+     *         description="Tag has been created",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="data", type="object", ref="#/components/schemas/Tags")
+     *          ),
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
+
+
     public function store(StoreTagRequest $request)
     {
         $tag = Tag::with('products')->create($request->all());
@@ -66,15 +196,71 @@ class TagController extends Controller
         }
 
         return response()->json([
-            "data" => $tag,
+            "data" => $tag->with('products')->first(),
         ], 201);
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Tag  $tag
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v0/tags/{id}",
+     *     tags={"Tags by Id Data"},
+     *     summary="Get Tag by Id",
+     *     operationId="getTagId",
+     *     
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the tag",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="1"
+     *          ),
+     *     ),
+     *     
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="per_page",
+     *          example="10"
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="current_page",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/Tags")
+     *              ),
+     *              @OA\Property(
+     *                  property="first_page_url",
+     *                  type="string",
+     *                  example="/api/v0/tags?page=1"
+     *              ),
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="last_page",
+     *                  type="integer",
+     *                  example="10"
+     *              ),
+     *          ),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -92,11 +278,43 @@ class TagController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v0/tags/{id}",
+     *     tags={"Update Tag Data"},
+     *     summary="Update Tag Data",
+     *     operationId="updateTag",
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the tag",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="1"
+     *          ),
+     *     ),
+     *     @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="tag_name", type="string", example="Sony"),
+     *          ),
      *
-     * @param  \App\Http\Requests\UpdateTagRequest  $request
-     * @param  \App\Models\Tag  $tag
-     * @return \Illuminate\Http\Response
+     *      ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Tag has been updated",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="data", type="object", ref="#/components/schemas/Tags")
+     *          ),
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
     public function update(UpdateTagRequest $request, $id)
     {
@@ -117,10 +335,31 @@ class TagController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Tag  $tag
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/v0/tags/{id}",
+     *     tags={"Delete Tag Data"},
+     *     summary="Delete Tag",
+     *     operationId="deleteTag",
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the tag",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="1"
+     *          ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Tag has been deleted",
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
     public function destroy($id)
     {

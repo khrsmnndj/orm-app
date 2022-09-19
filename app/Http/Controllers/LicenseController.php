@@ -6,13 +6,60 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreLicenseRequest;
 use App\Http\Requests\UpdateLicenseRequest;
 use App\Models\License;
+use OpenApi\Annotations as OA;
 
 class LicenseController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v0/licenses",
+     *     tags={"Licenses Data"},
+     *     summary="Get Licenses",
+     *     operationId="getLicenses",
+     *     
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="per_page",
+     *          example="10"
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="current_page",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/Licenses")
+     *              ),
+     *              @OA\Property(
+     *                  property="first_page_url",
+     *                  type="string",
+     *                  example="/api/v0/licenses?page=1"
+     *              ),
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="last_page",
+     *                  type="integer",
+     *                  example="10"
+     *              ),
+     *          ),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -31,11 +78,35 @@ class LicenseController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v0/licenses",
+     *     tags={"Post Licenses Data"},
+     *     summary="Post Licenses",
+     *     operationId="postLicenses",
+     *     @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="license_name", type="string", example="HACCP"),
+     *              @OA\Property(property="product_id", type="integer", example="1013"),
+     *          ),
+     *      ),
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     *     @OA\Response(
+     *         response=201,
+     *         description="License has been created",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="data", type="object", ref="#/components/schemas/Licenses")
+     *          ),
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
+
     public function store(StoreLicenseRequest $request)
     {
         $licenses = License::create($request->all());
@@ -52,23 +123,116 @@ class LicenseController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v0/licenses/{id}",
+     *     tags={"Licenses by Id Data"},
+     *     summary="Get License by Id",
+     *     operationId="getLicenseId",
+     *     
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the license",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="21"
+     *          ),
+     *     ),
+     *     
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="per_page",
+     *          example="10"
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="current_page",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/Licenses")
+     *              ),
+     *              @OA\Property(
+     *                  property="first_page_url",
+     *                  type="string",
+     *                  example="/api/v0/licenses?page=1"
+     *              ),
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="integer",
+     *                  example="1"
+     *              ),
+     *              @OA\Property(
+     *                  property="last_page",
+     *                  type="integer",
+     *                  example="10"
+     *              ),
+     *          ),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     )
+     * )
      */
     public function show($id)
     {
         $licenses = License::find($id);
+        return response()->json([
+            "data" => $licenses
+        ], 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v0/licenses/{id}",
+     *     tags={"Update License Data"},
+     *     summary="Update License Data",
+     *     operationId="updateLicense",
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the license",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="21"
+     *          ),
+     *     ),
+     *     @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="license_name", type="string", example="ISO 5001"),
+     *              @OA\Property(property="product_id", type="integer", example="1018"),
+     *          ),
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     *      ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="License has been updated",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="data", type="object", ref="#/components/schemas/Licenses")
+     *          ),
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
+
     public function update(UpdateLicenseRequest $request, $id)
     {
         $license = License::find($id);
@@ -89,10 +253,31 @@ class LicenseController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/v0/licenses/{id}",
+     *     tags={"Delete license Data"},
+     *     summary="Delete License",
+     *     operationId="deleteLicense",
+     *     @OA\Parameter(
+     *          in="path",
+     *          required=true,
+     *          name="id",
+     *          description="The id of the license",
+     *          @OA\Schema(
+     *              type="integer",
+     *              example="1"
+     *          ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="license has been deleted",
+     *     ),
+     * 
+     *      @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     * )
      */
     public function destroy($id)
     {
@@ -107,6 +292,6 @@ class LicenseController extends Controller
         };
 
         $license->delete();
-        return response()->json(null, 204);
+        return response()->json(null, 201);
     }
 }
